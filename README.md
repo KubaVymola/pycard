@@ -1,11 +1,12 @@
 # PyCard
+
 Un-opinionated card game prototyping engine
 
 Generate printable cards for prototyping using csv, html, css.
 
-* Card data stored in csv file (delimiter can be specified)
-* Html jinja2 templating
-* CSS for styling
+-   Card data stored in csv file (delimiter can be specified)
+-   Html jinja2 templating
+-   CSS for styling
 
 _Only tested in Python 3.6_
 
@@ -17,11 +18,13 @@ _Only tested in Python 3.6_
 
 <img src="https://user-images.githubusercontent.com/903488/31864438-4419b710-b712-11e7-8c3a-9c823c6e57da.png" alt="works on linux" width="75px">
 
-###  Quick Start
+### Quick Start
 
 ```
 git clone https://github.com/ghostsquad/pycard.git
 cd pycard
+python3 -m venv venv
+source ./venv/bin/activate
 pip install -r requirements.txt
 python pycard.py -p ./examples -d "|"
 ```
@@ -71,25 +74,25 @@ index.html file is created/overwritten in the assets path!
 
 Note: You can change the prefix with the `-x` or `--prefix` commandline option. Default is `_card`.
 
-* `_card.csv` - **[Required]** is your data. Column names become variables to be used in `_card.html.jinja2`
+-   `_card.csv` - **[Required]** is your data. Column names become variables to be used in `_card.html.jinja2`
 
-    * `num_cards` is a special column name. You can use this to indicate how many copies of a particular card will be rendered.
+    -   `num_cards` is a special column name. You can use this to indicate how many copies of a particular card will be rendered.
 
-      When this column is missing or has a non-numeric value, it defaults to 1 card.
-      Using 0 is the column will cause the card not to be rendered.
-      This is useful if you have a card idea, but aren't ready yet to print it for prototyping.
+        When this column is missing or has a non-numeric value, it defaults to 1 card.
+        Using 0 is the column will cause the card not to be rendered.
+        This is useful if you have a card idea, but aren't ready yet to print it for prototyping.
 
-    * `ignore` is a special column name. You can use this to prevent a row from being rendered.
-      I've found this useful to ignore the row with card count sums.
+    -   `ignore` is a special column name. You can use this to prevent a row from being rendered.
+        I've found this useful to ignore the row with card count sums.
 
-* `_card.css` - **[Required]** is your styling. This will be automatically loaded. As your cards will be printed, be careful to use physical units (mm, pt...) instead of pixels to define dimensions.
-* `_card.html.jinja2` - **[Required]** will be your html template. See [Jinja Documentation](http://jinja.pocoo.org/docs/2.9/templates/) for details.
+-   `_card.css` - **[Required]** is your styling. This will be automatically loaded. As your cards will be printed, be careful to use physical units (mm, pt...) instead of pixels to define dimensions.
+-   `_card.html.jinja2` - **[Required]** will be your html template. See [Jinja Documentation](http://jinja.pocoo.org/docs/2.9/templates/) for details.
 
-    * column headers are variables
-    * `__card_data` is injected as a dictionary (usage: `{{ __card_data['foo'] }}` is the same as `{{ foo }}`
-    * `__time` is injected to provide a way of preventing images from being cached. (usage: `my_image.png?{{ __time }}`
+    -   column headers are variables
+    -   `__card_data` is injected as a dictionary (usage: `{{ __card_data['foo'] }}` is the same as `{{ foo }}`
+    -   `__time` is injected to provide a way of preventing images from being cached. (usage: `my_image.png?{{ __time }}`
 
-* `_card.header.html` - _[Optional]_ Add custom header to the final `index.html` file.
+-   `_card.header.html` - _[Optional]_ Add custom header to the final `index.html` file.
 
 The page found at localhost:8800 is now printable!
 
