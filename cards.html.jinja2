@@ -1,18 +1,37 @@
 <!doctype html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta http-equiv="cache-control" content="max-age=0" />
-        <meta http-equiv="cache-control" content="no-cache" />
-        <meta http-equiv="expires" content="0" />
-        <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-        <meta http-equiv="pragma" content="no-cache" />
-        <link rel="stylesheet" type="text/css" href="{{prefix}}.css" />
-        {%- if custom_header %}{{ custom_header }}{% endif %}
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <link rel="stylesheet" type="text/css" href="{{prefix}}.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {%- if custom_header %}{{ custom_header }}{% endif %}
     <style>
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk';
+            display: flex;
+            justify-items: center;
+            flex-wrap: wrap;
+        }
+
+        .card-container {
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
         }
 
         .pycard {
@@ -26,12 +45,16 @@
             }
         }
     </style>
-    </head>
-    <body>
-        {%-  for card in rendered_cards %}
+</head>
+
+<body>
+    <div class="card-container">
+        {%- for card in rendered_cards %}
         <div class="pycard">
             {{ card }}
         </div>
         {%- endfor %}
-    </body>
+    </div>
+</body>
+
 </html>

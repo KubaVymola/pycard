@@ -94,7 +94,8 @@ class RenderingEventHandler(FileSystemEventHandler):
         self.card_renderer = card_renderer
 
     def on_any_event(self, event):
-        if event.src_path == self.card_renderer.all_cards_rendered_path:
+        # if event.src_path == self.card_renderer.all_cards_rendered_path:
+        if event.src_path.endswith(self.card_renderer.all_cards_rendered_path):
             return
 
         self.card_renderer.render_cards()
