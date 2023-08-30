@@ -1,0 +1,28 @@
+[
+    {
+        "num_cards": 20,
+        "stamina": 7,
+        "start_stamina": 2,
+        "food": 6,
+        "start_food": 6,
+        "actions": [
+            {
+                "fight": true,
+                "repeat": true,
+                "from": [{ "icon": "fa6-solid:hand-fist", "card": true }],
+                "to": [{ "icon": "fa6-solid:hand-fist" }]
+            },
+            {
+                "fight": true,
+                "repeat": true,
+                "from": [{ "icon": "mingcute:run-fill", "card": true}],
+                "to": [{ "icon": "mingcute:run-fill" }]
+            },
+            {
+                "required": true,
+                "from": [{ "icon": "mdi:meat-outline" }],
+                "to": [{ "icon": "mdi:cards-outline", "count": 2 }]
+            }
+        ]
+    }
+]

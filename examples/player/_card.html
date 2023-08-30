@@ -1,0 +1,56 @@
+{% set icon_size="0.4cm" %}
+
+{% import "action_utils.html" as action_utils %}
+
+<div class="h-full grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto]">
+    <div class="flex justify-center items-center row-start-1 col-start-2">
+        <iconify-icon width="{{ icon_size }}" icon="mdi:head-outline"
+            class="border-b-[2px] rounded-full border-black p-1 -mt-1"></iconify-icon>
+    </div>
+
+    <div class="flex justify-center items-center row-start-1 col-start-1">
+        <iconify-icon width="{{ icon_size }}" icon="solar:body-shape-outline"
+            class="border-r-[2px] rounded-full border-black p-1 -ml-1"></iconify-icon>
+    </div>
+
+    <div class="flex justify-center items-center row-start-1 col-start-3">
+        <iconify-icon width="{{ icon_size }}" icon="mdi:hand-back-right-outline"
+            class="border-l-[2px] rounded-full border-black p-1 -mr-1"></iconify-icon>
+    </div>
+
+    <div class="flex justify-center items-center row-start-3 col-start-2">
+        <iconify-icon width="{{ icon_size }}" icon="fluent-emoji-high-contrast:foot"
+            class="border-t-[2px] rounded-full border-black p-1 -mb-1"></iconify-icon>
+    </div>
+
+    <div class="row-start-2 col-start-1 col-span-3 flex flex-col items-center justify-around py-1">
+        <span class="text-sm">Člověk</span>
+
+        <div class="flex flex-col items-center gap-0.5">
+            {{ action_utils.list_actions(actions) }}
+        </div>
+            
+        <div class="flex flex-col items-center gap-0.5">
+            <div class="flex items-center">
+                {% for _ in range(start_stamina|int) %}
+                <iconify-icon width="{{ icon_size }}" icon="mdi:cards" class=""></iconify-icon>
+                {% endfor %}
+                {% for _ in range(stamina|int - start_stamina|int) %}
+                <iconify-icon width="{{ icon_size }}" icon="mdi:cards-outline" class=""></iconify-icon>
+                {% endfor %}
+            </div>
+
+
+            <div class="flex items-center">
+                {% for _ in range(start_food|int) %}
+                <iconify-icon width="{{ icon_size }}" icon="mdi:meat" class=""></iconify-icon>
+                {% endfor %}
+
+                {% for _ in range(food|int - start_food|int) %}
+                <iconify-icon width="{{ icon_size }}" icon="mdi:meat-outline" class=""></iconify-icon>
+                {% endfor %}
+                <!-- <span>{{ food }} ({{ start_max_food}})</span> -->
+            </div>
+        </div>
+    </div>
+</div>

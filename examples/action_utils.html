@@ -1,0 +1,53 @@
+{% macro action_icons(action) %}
+    {% for entry in action %}
+        {% if entry.card == True %}
+            {% set iconClass = 'border-black border-[1px]' %}
+        {% else %}
+            {% set iconClass = '' %}
+        {% endif %}
+        
+        {% if entry.count is not defined %}
+            <iconify-icon width="{{ icon_size }}" icon="{{ entry.icon }}" class="{{ iconClass }}"></iconify-icon>
+        {% elif entry.count is string or entry.count > 2 %}
+            <iconify-icon width="{{ icon_size }}" icon="{{ entry.icon }}" class="{{ iconClass }}"></iconify-icon>
+            <span>{{ entry.count }}</span>
+        {% else %}
+            {% for _ in range(entry.count) %}
+                <iconify-icon width="{{ icon_size }}" icon="{{ entry.icon }}" class="{{ iconClass }}"></iconify-icon>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+
+
+
+{% macro list_actions(list) %}
+    {% for action in list %}
+        <div class="flex items-center gap-0.5">
+
+            {% if action.required == True %}
+                <iconify-icon width="{{ icon_size }}" icon="mdi:exclamation-thick"></iconify-icon>
+            {% endif %}
+            
+            {% if action.fight == True %}
+                <iconify-icon width="{{ icon_size }}" icon="ri:sword-line"></iconify-icon>
+            {% endif %}
+
+            {% if action.repeat == True %}
+                <iconify-icon width="{{ icon_size }}" icon="pepicons-pop:repeat"></iconify-icon>
+            {% endif %}
+
+            {% if action.fight == True or action.required == True or action.repeat == True %}
+                <span class="text-sm">:</span>
+            {% endif %}
+
+            {{ action_icons(action.from) }}
+            
+            <iconify-icon width="{{ icon_size }}" icon="mdi:arrow-right""></iconify-icon>
+            
+            {{ action_icons(action.to) }}
+        </div>
+    {% endfor %}
+
+{% endmacro %}

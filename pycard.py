@@ -1,35 +1,44 @@
-from jinja2 import Template
+from jinja2 import Template, Environment, FileSystemLoader
 import os
 from optparse import OptionParser
 import logging
 import csv
 import time
 import re
+import math
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 from itertools import zip_longest
 from livereload import Server
+import json
 
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 RENDERED_CARDS_FILE = "index.html"
-
+PAGE_HEIGHT_MM = 277
+PAGE_WIDTH_MM = 190
+# PAGE_HEIGHT_MM = 227
+# PAGE_WIDTH_MM = 160
 
 class CardRenderer:
-    def __init__(self, input_path, prefix):
+    def __init__(self, input_path, common_path, prefix):
         self.prefix = prefix
         self.input_path = input_path
+        self.common_path = common_path
 
-        self.csv_card_path = self.get_path("csv")
-        self.custom_header_path = self.get_path("header.html")
-        self.single_card_template_path = self.get_path("html.jinja2")
+        self.csv_card_path = self.get_prefixed_path("json")
+        self.custom_header_path = self.get_prefixed_path("header.html")
+        self.single_card_front_path = self.get_prefixed_path("html")
+        self.single_card_back_path = self.get_prefixed_path("back.html")
 
-        self.cards_template_path = os.path.join(os.path.dirname(__file__), 'cards.html.jinja2')
+        self.config_path = os.path.join(self.input_path, "config.ini")
+
+        self.cards_template_path = os.path.join(os.path.dirname(__file__), 'cards.html')
 
         self.all_cards_rendered_path = os.path.join(input_path, RENDERED_CARDS_FILE)
 
-    def get_path(self, extension):
+    def get_prefixed_path(self, extension):
         return os.path.join(self.input_path, "{}.{}".format(self.prefix, extension))
 
     def render_cards(self):
@@ -38,36 +47,85 @@ class CardRenderer:
         # unless I add a small sleep before attempting to read everything
         time.sleep(0.5)
 
-        # load the csv file
-        cards_data = []
-        with open(self.csv_card_path, "r", encoding='utf-8-sig') as csvfile:
-            reader = csv.DictReader(csvfile, dialect='custom_delimiter')
-            for row in reader:
-                cards_data.append(row)
+        config = { "rows": 5, "cols": 5}
 
-        rendered_cards = []
+        if os.path.exists(self.config_path):
+            with open(self.config_path, 'r') as f:
+                for line in f:
+                    [key, value] = line.split('=')
+
+                    if key == 'ROWS': config["rows"] = int(value)
+                    if key == 'COLS': config["cols"] = int(value)
+
+        cards_per_page = config["rows"] * config["cols"]
+        card_height = round(PAGE_HEIGHT_MM / config["rows"], 2)
+        card_width = round(PAGE_WIDTH_MM / config["cols"], 2)
+
+        # load the csv file
+
+        
+        f = open(self.csv_card_path)
+        cards_data = json.load(f)
+
+        for card_data in cards_data:
+            print(card_data)
+        
+        # cards_data = []
+        # with open(self.csv_card_path, "r", encoding='utf-8-sig') as csvfile:
+        #     reader = csv.DictReader(csvfile, dialect='custom_delimiter')
+        #     for row in reader:
+        #         cards_data.append(row)
+
+        front_cards = []
+        back_cards = []
+
+        print(os.path.join(os.path.dirname(__file__), self.input_path, self.common_path))
 
         # load the single card template
-        with open(self.single_card_template_path, "r") as template_file:
-            template = Template(template_file.read())
+        with open(self.single_card_front_path, "r") as front_file:
+            # front_template = Template(front_file.read())
+            front_template = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), self.input_path, self.common_path))).from_string(front_file.read())
+            back_template = None
 
-            # render the template with card data
+            if os.path.exists(self.single_card_back_path):
+                with open(self.single_card_back_path) as back_file:
+                    back_template = Template(back_file.read())
+
             for card_data in cards_data:
                 if str(card_data.get('ignore', "false")).lower() == "true":
                     continue
 
-                rendered = template.render(
+                front_rendered = front_template.render(
                     card_data,
                     __card_data=card_data,
                     __time=str(time.time())
                 )
                 num_cards = card_data.get('num_cards')
-                if num_cards is None or re.match("^[^0-9]*$", num_cards):
+                if num_cards is None:
                     num_cards = 1
 
                 num_cards = int(num_cards)
-                for i in range(0, int(num_cards)):
-                    rendered_cards.append(rendered)
+
+                back_rendered = None
+                if back_template is not None:
+                    back_rendered = back_template.render(
+                        card_data,
+                        __card_data=card_data,
+                        __time=str(time.time())
+                    )
+
+                for _ in range(num_cards):
+                    front_cards.append(front_rendered)
+                    back_cards.append(back_rendered)
+
+        rendered_cards = []
+        for i in range(0, len(front_cards), cards_per_page):
+            rendered_cards.append({ "type": "front", "cards": front_cards[i:min(i + cards_per_page, len(front_cards))]})
+
+            if back_template is not None:
+                rendered_cards.append({ "type": "back", "cards": back_cards[i:min(i + cards_per_page, len(back_cards))]})
+
+        # print(rendered_cards)
 
         # Load custom header html if it exists
         custom_header = None
@@ -84,7 +142,12 @@ class CardRenderer:
                     template.render(
                         rendered_cards=rendered_cards,
                         prefix=self.prefix,
-                        custom_header=custom_header
+                        custom_header=custom_header,
+                        card_height=str(card_height),
+                        card_width=str(card_width),
+                        page_height=PAGE_HEIGHT_MM,
+                        cols=config["cols"],
+                        rows=config["rows"]
                     )
                 )
 
@@ -111,6 +174,12 @@ def parse_options():
                       dest="path",
                       default=os.getcwd(),
                       metavar="PATH")
+
+    parser.add_option("--common",
+                      help="relative path from assets to common files",
+                      dest="common",
+                      default="..",
+                      metavar="COMMON")
 
     parser.add_option("-x", "--prefix",
                       help="filename prefix, example _card<.ext>",
@@ -149,12 +218,13 @@ def main():
 
     port = options.port
     assets_path = options.path
+    common_path = options.common
     file_prefix = options.prefix
     host_address = options.host_address
 
     csv.register_dialect('custom_delimiter', delimiter=options.delimiter)
 
-    card_renderer = CardRenderer(assets_path, file_prefix)
+    card_renderer = CardRenderer(assets_path, common_path, file_prefix)
 
     observer = Observer()
     observer.schedule(LoggingEventHandler(), assets_path, recursive=True)
